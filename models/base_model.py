@@ -1,12 +1,12 @@
 #!/usr/bin/python3
-
 """
 This module defines a base class for all models in our hbnb clone.
 """
 
-import uuid  # Importing the UUID module for generating unique identifiers
-from datetime import datetime  # Importing datetime for handling date and time operations
-from models import storage  # Importing the storage module to handle data persistence
+import uuid
+from datetime import datetime
+from models import storage
+
 
 class BaseModel:
     """
@@ -21,16 +21,12 @@ class BaseModel:
             *args (tuple): Variable length argument list.
             **kwargs (dict): Arbitrary keyword arguments to set instance attributes.
         """
-        if kwargs is not None and kwargs != {}:
-            for key in kwargs:
-                if key == "created_at":
-                    self.__dict__["created_at"] = datetime.strptime(
-                        kwargs["created_at"], "%Y-%m-%dT%H:%M:%S.%f")
-                elif key == "updated_at":
-                    self.__dict__["updated_at"] = datetime.strptime(
-                        kwargs["updated_at"], "%Y-%m-%dT%H:%M:%S.%f")
+        if kwargs:
+            for key, value in kwargs.items():
+                if key == "created_at" or key == "updated_at":
+                    setattr(self, key, datetime.strptime(value, "%Y-%m-%dT%H:%M:%S.%f"))
                 else:
-                    self.__dict__[key] = kwargs[key]
+                    setattr(self, key, value)
         else:
             self.id = str(uuid.uuid4())
             self.created_at = datetime.now()
@@ -44,7 +40,6 @@ class BaseModel:
         """
         self.updated_at = datetime.now()
         storage.save()
-
 
     def to_dict(self):
         """
